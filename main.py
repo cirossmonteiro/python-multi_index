@@ -1,8 +1,25 @@
 import unittest
 
-class MultiIndexIterator:
+class ValidatorSize:
     def __init__(self, size):
+        if type(size) != list:
+            raise TypeError("Size must be of list type.")
+        
+        if len(size) == 0:
+            raise IndexError("Size cannot be a empty list.")
+        
+        for index in size:
+            if type(index) == int:
+                if index <= 0:
+                    raise ValueError("Size must have only positive numbers.")
+            else:
+                raise TypeError("Size must have only integer numbers.")
+            
         self.size = size
+
+class MultiIndexIterator(ValidatorSize):
+    def __init__(self, size):
+        super().__init__(size)
         self.current = [0 for i in size]
         self.done = False
 
@@ -35,9 +52,9 @@ class MultiIndexIterator:
 
             return current
 
-class MultiIndex:
+class MultiIndex(ValidatorSize):
     def __init__(self, size):
-        self.size = size
+        super().__init__(size)
 
     def __call__(self, value):
         if type(value) == list:
@@ -55,6 +72,19 @@ class TestStringMethods(unittest.TestCase):
 
     def setUp(self):
         self.instance = MultiIndex([2,3,4])
+
+    def test_init(self):
+        with self.assertRaises(TypeError):
+            MultiIndex(1)
+
+        with self.assertRaises(IndexError):
+            MultiIndex([])
+        
+        with self.assertRaises(ValueError):
+            MultiIndex([0,1,2,3,4])
+
+        with self.assertRaises(TypeError):
+            MultiIndex([1.5,2,3,4,5])
 
     def test_next(self):
         all_indexes = [i for i in self.instance]
